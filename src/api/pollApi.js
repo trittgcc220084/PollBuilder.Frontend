@@ -1,6 +1,6 @@
 // [FRONTEND] File: src/api/pollApi.js
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuilder-gateway-r33h.onrender.com'
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
 const API_BASE = `${rawBaseUrl.replace(/\/$/, '')}/api`
 
 async function request(url, options = {}) {
