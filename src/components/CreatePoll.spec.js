@@ -1,4 +1,3 @@
-// src/components/CreatePoll.spec.js
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import CreatePoll from './CreatePoll.vue'
@@ -19,33 +18,31 @@ describe('CreatePoll', () => {
     })
   }
 
-  // Helper: tìm đúng nút "Tao poll" theo text thật (không dấu) trong component
   function getCreateButton(wrapper) {
     return wrapper.findAll('button').find((b) => b.text().includes('Tao poll'))
   }
 
-  // Helper: tìm đúng nút "+ Them lua chon"
   function getAddOptionButton(wrapper) {
     return wrapper.findAll('button').find((b) => b.text().includes('Them lua chon'))
   }
 
-  it('báo lỗi khi chưa nhập câu hỏi', async () => {
+  it('Error message displayed when no question is entered.', async () => {
     const wrapper = mountComponent()
 
     await getCreateButton(wrapper).trigger('click')
     await new Promise((r) => setTimeout(r, 0))
 
-    expect(wrapper.text()).toContain('Vui lòng nhập câu hỏi')
+    expect(wrapper.text()).toContain('Please enter your question.')
   })
 
-  it('báo lỗi khi thiếu lựa chọn hợp lệ', async () => {
+  it('Report an error when a valid option is missing.', async () => {
     const wrapper = mountComponent()
 
-    await wrapper.find('input').setValue('Bạn thích màu gì?')
+    await wrapper.find('input').setValue('What color do you like?')
     await getCreateButton(wrapper).trigger('click')
     await new Promise((r) => setTimeout(r, 0))
 
-    expect(wrapper.text()).toContain('Vui lòng nhập ít nhất 2 lựa chọn')
+    expect(wrapper.text()).toContain('Please enter at least 2 options.')
   })
 
   it('tạo poll thành công khi nhập đủ dữ liệu', async () => {
@@ -53,26 +50,26 @@ describe('CreatePoll', () => {
 
     const wrapper = mountComponent()
     const inputs = wrapper.findAll('input')
-    await inputs[0].setValue('Bạn thích màu gì?')
-    await inputs[1].setValue('Đỏ')
-    await inputs[2].setValue('Xanh')
+    await inputs[0].setValue('What color do you like?')
+    await inputs[1].setValue('Red')
+    await inputs[2].setValue('Green')
 
     await getCreateButton(wrapper).trigger('click')
     await new Promise((r) => setTimeout(r, 0))
 
-    expect(pollApi.create).toHaveBeenCalledWith('Bạn thích màu gì?', ['Đỏ', 'Xanh'])
-    expect(wrapper.text()).toContain('Tao thanh cong!')
+    expect(pollApi.create).toHaveBeenCalledWith('What color do you like?', ['Red', 'Green'])
+    expect(wrapper.text()).toContain('Successfully created!')
     expect(wrapper.text()).toContain('ABC123')
   })
 
-  it('hiện lỗi khi API create thất bại', async () => {
+  it('Display an error when the create API fails.', async () => {
     pollApi.create.mockRejectedValue(new Error('Loi server'))
 
     const wrapper = mountComponent()
     const inputs = wrapper.findAll('input')
-    await inputs[0].setValue('Bạn thích màu gì?')
-    await inputs[1].setValue('Đỏ')
-    await inputs[2].setValue('Xanh')
+    await inputs[0].setValue('What color do you like??')
+    await inputs[1].setValue('Red')
+    await inputs[2].setValue('Green')
 
     await getCreateButton(wrapper).trigger('click')
     await new Promise((r) => setTimeout(r, 0))
@@ -80,37 +77,32 @@ describe('CreatePoll', () => {
     expect(wrapper.text()).toContain('Loi server')
   })
 
-  it('thêm được lựa chọn mới, tối đa 6', async () => {
+  it('New options have been added, up to 6.', async () => {
     const wrapper = mountComponent()
 
-    // Bắt đầu với 2 input lựa chọn, bấm thêm 4 lần để đạt tối đa 6
     for (let i = 0; i < 4; i++) {
       await getAddOptionButton(wrapper).trigger('click')
     }
 
-    // 1 input câu hỏi + 6 input lựa chọn = 7
     expect(wrapper.findAll('input').length).toBe(7)
 
-    // Nút "+ Them lua chon" phải biến mất khi đã đủ 6 lựa chọn
     expect(getAddOptionButton(wrapper)).toBeUndefined()
   })
 
-  it('xoá được lựa chọn khi có hơn 2 lựa chọn', async () => {
+  it('Selections can be deleted when there are more than two options.', async () => {
     const wrapper = mountComponent()
 
-    // Thêm 1 lựa chọn để có 3 lựa chọn -> nút "X" xuất hiện
     await getAddOptionButton(wrapper).trigger('click')
-    expect(wrapper.findAll('input').length).toBe(4) // 1 câu hỏi + 3 lựa chọn
+    expect(wrapper.findAll('input').length).toBe(4) 
 
     const removeBtn = wrapper.findAll('button').find((b) => b.text() === 'X')
     expect(removeBtn).toBeTruthy()
 
     await removeBtn.trigger('click')
-    expect(wrapper.findAll('input').length).toBe(3) // 1 câu hỏi + 2 lựa chọn
+    expect(wrapper.findAll('input').length).toBe(3) 
   })
 
-  it('không cho bấm nút Tao poll khi đang loading', async () => {
-    // Mock create trả về promise "treo" để kiểm tra trạng thái loading
+  it('Disable the "Create Poll" button while loading.', async () => {
     let resolveFn
     pollApi.create.mockReturnValue(
       new Promise((resolve) => {
@@ -120,14 +112,14 @@ describe('CreatePoll', () => {
 
     const wrapper = mountComponent()
     const inputs = wrapper.findAll('input')
-    await inputs[0].setValue('Bạn thích màu gì?')
-    await inputs[1].setValue('Đỏ')
-    await inputs[2].setValue('Xanh')
+    await inputs[0].setValue('What color do you like??')
+    await inputs[1].setValue('Red')
+    await inputs[2].setValue('Green')
 
     const createBtn = getCreateButton(wrapper)
     await createBtn.trigger('click')
 
-    expect(wrapper.text()).toContain('Dang tao...')
+    expect(wrapper.text()).toContain('Creating...')
     expect(createBtn.attributes('disabled')).not.toBeUndefined()
 
     resolveFn({ code: 'XYZ999' })
