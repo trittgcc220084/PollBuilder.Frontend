@@ -72,6 +72,17 @@ onMounted(async () => {
     if (results.value) results.value.status = 'closed'
   })
 
+  // QUAN TRỌNG: SignalR tự kết nối lại (reconnect) nhưng KHÔNG tự join lại group
+  // Trên Render free tier, WebSocket bị ngắt định kỳ -> phải tự JoinPoll lại mỗi khi reconnect
+  connection.onreconnected(async () => {
+    try {
+      await connection.invoke('JoinPoll', code)
+      console.log('✅ Đã join lại group sau khi reconnect')
+    } catch (e) {
+      console.error('Lỗi khi join lại group:', e)
+    }
+  })
+
   try {
     await connection.start()
     await connection.invoke('JoinPoll', code)
