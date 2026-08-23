@@ -404,7 +404,11 @@ a{ color: inherit; }
    POLL CHART
 ========================= */
 .chart{ display:flex; flex-direction:column; gap: 14px; }
-.chart-row{ }
+.chart-row{
+    display:flex;
+    flex-direction:column;
+    gap: 6px;
+}
 .chart-row-top{
   display:flex;
   justify-content:space-between;
