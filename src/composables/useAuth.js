@@ -1,11 +1,11 @@
 import { ref, computed } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 
-// State lưu Token toàn cục
+
 const token = ref(localStorage.getItem('token') || localStorage.getItem('accessToken') || null);
 
 export function useAuth() {
-  // Tự động giải mã token để lấy thông tin user (id, email)
+// Automatically decode the token to retrieve user information (id, email)
   const user = computed(() => {
     if (!token.value) return null;
     try {
@@ -23,7 +23,7 @@ export function useAuth() {
   const logout = () => {
     token.value = null;
     localStorage.removeItem('token');
-    window.location.href = '/login'; // Chuyển về trang login
+    window.location.href = '/login'; // Redirect to login page
   };
 
   return { token, user, login, logout };

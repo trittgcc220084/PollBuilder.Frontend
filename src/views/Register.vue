@@ -3,7 +3,7 @@
   <div class="auth-page">
     <div class="card auth-card fade-in">
       <div class="eyebrow">Poll Builder</div>
-      <h2 class="auth-title">Đăng ký tài khoản</h2>
+      <h2 class="auth-title">Register</h2>
 
       <form @submit.prevent="handleRegister" class="auth-form">
         <div class="form-group" style="margin-bottom:0;">
@@ -12,13 +12,13 @@
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Mật khẩu</label>
+          <label class="form-label">Password</label>
           <input v-model="password" type="password" required class="input" placeholder="••••••••" />
         </div>
 
         <button type="submit" :disabled="isLoading" class="btn btn-primary btn-block">
           <span v-if="isLoading" class="btn-loader"></span>
-          {{ isLoading ? 'Đang xử lý...' : 'Đăng ký' }}
+          {{ isLoading ? 'Processing...' : 'Register' }}
         </button>
       </form>
 
@@ -28,7 +28,7 @@
       </div>
 
       <p class="auth-footer">
-        Đã có tài khoản? <router-link to="/login" class="link">Đăng nhập</router-link>
+        Already have an account? <router-link to="/login" class="link">Log in</router-link>
       </p>
     </div>
   </div>
@@ -66,9 +66,9 @@ const handleRegister = async () => {
 
     router.push(route.query.redirect || '/');
   } catch (error) {
-    // Bắt đúng chuỗi tin nhắn lỗi từ Backend trả về
+// Correctly capture the error message string returned by the backend    
     const serverMessage = error.response?.data?.message || error.response?.data?.error;
-    errorMessage.value = typeof serverMessage === 'string' ? serverMessage : (error.message || 'Đăng ký thất bại.');
+    errorMessage.value = typeof serverMessage === 'string' ? serverMessage : (error.message || 'Registration failed.');
   } finally {
     isLoading.value = false;
   }

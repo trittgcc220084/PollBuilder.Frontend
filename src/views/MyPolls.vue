@@ -1,77 +1,79 @@
-<!-- [FRONTEND] File: src/views/Login.vue -->
 <template>
-  <div class="auth-page">
-    <div class="card auth-card fade-in">
+  <div class="page">
+    <div class="container" style="max-width: 720px;">
       <div class="eyebrow">Poll Builder</div>
-      <h2 class="auth-title">Đăng nhập</h2>
+      <h2 class="page-title">My Poll History</h2>
 
-      <form @submit.prevent="handleLogin" class="auth-form">
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Email</label>
-          <input v-model="email" type="email" required class="input" placeholder="ban@vidu.com" />
-        </div>
+      <div class="tear-line"></div>
 
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Mật khẩu</label>
-          <input v-model="password" type="password" required class="input" placeholder="••••••••" />
-        </div>
+      <div v-if="isLoading" class="state-box">⏳ Loading data...</div>
 
-        <button type="submit" :disabled="loading" class="btn btn-primary btn-block">
-          <span v-if="loading" class="btn-loader"></span>
-          {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
-        </button>
-      </form>
-
-      <div v-if="error" class="error-message">
-        <span class="error-icon">!</span>
-        <span>{{ error }}</span>
+      <div v-else-if="errorMessage" class="alert alert-error">
+        <span class="alert-icon">!</span>
+        <span>{{ errorMessage }}</span>
       </div>
 
-      <p class="auth-footer">
-        Chưa có tài khoản? <router-link to="/register" class="link">Đăng ký ngay</router-link>
-      </p>
+      <div v-else-if="polls.length > 0" class="polls-list">
+        <PollCard
+          v-for="poll in polls"
+          :key="poll.id || poll._id || poll.code"
+          :poll="poll"
+        />
+      </div>
+
+      <div v-else class="card state-box">📝 You haven't created any polls yet.</div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import axios from 'axios'
-import { useAuth } from '../composables/useAuth'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { pollApi } from '../api/pollApi';
+import PollCard from '../components/PollCard.vue';
 
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref('')
-const router = useRouter()
-const route = useRoute()
-const { login } = useAuth()
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
+const polls = ref([]);
+const isLoading = ref(true);
+const errorMessage = ref('');
+const router = useRouter();
 
-const handleLogin = async () => {
-  loading.value = true
-  error.value = ''
+onMounted(async () => {
+  // 1. Lấy token từ localStorage
+  const jwtToken = localStorage.getItem('token');
+
+  console.log('🔍 Kiểm tra token:', jwtToken ? 'Token tồn tại' : '❌ Không có token');
+
+  if (!jwtToken) {
+    errorMessage.value = 'You are not logged in. Please log in to view your polls.';
+    isLoading.value = false;
+    // Redirect to login after 2 seconds
+    setTimeout(() => router.push('/login'), 2000);
+    return;
+  }
 
   try {
-    const res = await axios.post(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/login`, {
-      email: email.value,
-      password: password.value
-    })
+// 2. Call the API via pollApi.js (token handling is automated)
+  console.log('📡 Gọi API: getMyPolls()');
+    const data = await pollApi.getMyPolls();
 
-    const token = res.data?.token || res.data?.Token
+    console.log('✅ Dữ liệu trả về:', data);
+    polls.value = Array.isArray(data) ? data : (data.data || []);
 
-    if (token) {
-      login(token)
-      router.push(route.query.redirect || '/')
-    } else {
-      error.value = 'Server không trả về Token!'
+    if (polls.value.length === 0) {
+      console.log('ℹ️ There are no polls.');
     }
-  } catch (err) {
-    console.error('Lỗi Login:', err)
-    error.value = err.response?.data?.message || err.message || 'Không thể kết nối đến Server'
+  } catch (error) {
+    console.error('❌ Error retrieving MyPolls:', error);
+
+    if (error.message.includes('401')) {
+      localStorage.removeItem('token');
+      errorMessage.value = '🔐 Token has expired. Please log in again.';
+      setTimeout(() => router.push('/login'), 2000);
+    } else {
+      errorMessage.value = `⚠️ Unable to load Poll list: ${error.message}. Please log in again.`;
+    }
   } finally {
-    loading.value = false
+    isLoading.value = false;
   }
-}
+});
 </script>

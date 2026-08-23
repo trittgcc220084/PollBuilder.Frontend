@@ -3,7 +3,7 @@
   <div class="auth-page">
     <div class="card auth-card fade-in">
       <div class="eyebrow">Poll Builder</div>
-      <h2 class="auth-title">Đăng nhập</h2>
+      <h2 class="auth-title">Log in</h2>
 
       <form @submit.prevent="handleLogin" class="auth-form">
         <div class="form-group" style="margin-bottom:0;">
@@ -12,13 +12,13 @@
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Mật khẩu</label>
+          <label class="form-label">Password</label>
           <input v-model="password" type="password" required class="input" placeholder="••••••••" />
         </div>
 
         <button type="submit" :disabled="loading" class="btn btn-primary btn-block">
           <span v-if="loading" class="btn-loader"></span>
-          {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
+          {{ loading ? 'Processing...' : 'Log in' }}
         </button>
       </form>
 
@@ -28,7 +28,7 @@
       </div>
 
       <p class="auth-footer">
-        Chưa có tài khoản? <router-link to="/register" class="link">Đăng ký ngay</router-link>
+        Don't have an account? <router-link to="/register" class="link">Sign up now</router-link>
       </p>
     </div>
   </div>
@@ -65,11 +65,11 @@ const handleLogin = async () => {
       login(token)
       router.push(route.query.redirect || '/')
     } else {
-      error.value = 'Server không trả về Token!'
+      error.value = 'Server does not return a token!'
     }
   } catch (err) {
-    console.error('Lỗi Login:', err)
-    error.value = err.response?.data?.message || err.message || 'Không thể kết nối đến Server'
+    console.error('Login Error:', err)
+    error.value = err.response?.data?.message || err.message || 'Cannot connect to the server'
   } finally {
     loading.value = false
   }
