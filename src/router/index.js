@@ -29,7 +29,8 @@ const routes = [
   },
   {
     path: '/poll/:code/results',
-    component: ResultsPoll
+    component: ResultsPoll,
+    meta: { requiresAuth: true }
   }
 ]
 

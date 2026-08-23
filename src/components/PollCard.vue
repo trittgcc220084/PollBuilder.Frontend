@@ -1,7 +1,7 @@
 <template>
   <div class="poll-card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
     <h3>{{ poll.question }}</h3>
-    <p>Trạng thái: <strong>{{ poll.isClosed ? '🔴 Đã đóng' : '🟢 Đang mở' }}</strong></p>
+    <p>Trạng thái: <strong>{{ poll.status === 'closed' ? '🔴 Đã đóng' : '🟢 Đang mở' }}</strong></p>
     
     <div style="display: flex; gap: 10px; margin-top: 15px;">
       <button @click="goToRealtime" style="background: #3b82f6; color: white; padding: 5px 10px; border: none; border-radius: 4px;">
@@ -12,7 +12,7 @@
         🔗 Copy Link
       </button>
 
-      <button v-if="!poll.isClosed" @click="closePoll" style="background: #ef4444; color: white; padding: 5px 10px; border: none; border-radius: 4px;">
+      <button v-if="poll.status !== 'closed'" @click="closePoll" style="background: #ef4444; color: white; padding: 5px 10px; border: none; border-radius: 4px;">
         🔒 Đóng Poll
       </button>
     </div>
@@ -45,7 +45,6 @@ const closePoll = async () => {
   if (!confirm('Bạn có chắc chắn muốn đóng Poll này? Người khác sẽ không thể vote được nữa.')) return;
   
   try {
-    // Lưu ý: Thay đổi URL Gateway của bạn nếu cần
     await axios.patch(`https://pollbuildergateway.onrender.com/api/polls/${props.poll.code}/close`, {}, {
       headers: { Authorization: `Bearer ${token.value}` }
     });

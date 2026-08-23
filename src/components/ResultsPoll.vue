@@ -36,7 +36,7 @@ const loading = ref(true)
 const error = ref('')
 let connection = null
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuilder-gateway-r33h.onrender.com'
+const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
 const hubUrl = `${baseUrl.replace(/\/$/, '')}/hubs/polls`
 
 onMounted(async () => {
@@ -44,13 +44,20 @@ onMounted(async () => {
     results.value = await pollApi.results(code)
   } catch (e) {
     error.value = e.message
-  } finally {
     loading.value = false
+    return // ← DỪNG LẠI NGAY, KHÔNG kết nối SignalR nếu không có quyền xem
   }
+
+  loading.value = false
 
   // Khởi tạo kết nối SignalR sử dụng đường dẫn Hub động
   connection = new signalR.HubConnectionBuilder()
-    .withUrl(hubUrl)
+    .withUrl(hubUrl, {
+      accessTokenFactory: () => {
+        let token = localStorage.getItem('token') || localStorage.getItem('accessToken') || ''
+        return token.replace(/^"(.*)"$/, '$1').trim()
+      }
+    })
     .withAutomaticReconnect()
     .build()
 
