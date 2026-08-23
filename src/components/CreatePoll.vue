@@ -2,13 +2,10 @@
   <div class="page create-poll-page">
     <div class="container">
       <div class="create-poll-card card fade-in">
-
         <!-- Header -->
         <div class="create-poll-header">
           <div class="eyebrow">CREATE A NEW POLL</div>
-
           <h1 class="page-title">Poll Builder</h1>
-
           <p class="page-subtitle">
             Create a poll and share it with others in seconds.
           </p>
@@ -16,14 +13,14 @@
 
         <!-- Question -->
         <div class="form-group">
-          <label class="form-label">
-            Question
-          </label>
-
+          <label class="form-label">Question</label>
           <input
             v-model="question"
-            placeholder="What is your favorite color?"
+            type="text"
             class="input"
+            placeholder="What is your favorite color?"
+            maxlength="200"
+            :disabled="loading"
           />
         </div>
 
@@ -40,21 +37,24 @@
               :key="i"
               class="option-row"
             >
-              <div class="option-number">
-                {{ i + 1 }}
-              </div>
+              <div class="option-number">{{ i + 1 }}</div>
 
               <input
                 v-model="options[i]"
-                :placeholder="'Option ' + (i + 1)"
+                type="text"
                 class="input option-input"
+                :placeholder="'Option ' + (i + 1)"
+                maxlength="100"
+                :disabled="loading"
               />
 
               <button
                 v-if="options.length > 2"
-                @click="options.splice(i,1)"
+                type="button"
                 class="remove-option-btn"
                 title="Remove option"
+                :disabled="loading"
+                @click="removeOption(i)"
               >
                 ×
               </button>
@@ -63,78 +63,58 @@
 
           <button
             v-if="options.length < 6"
-            @click="options.push('')"
+            type="button"
             class="add-option-btn"
+            :disabled="loading"
+            @click="addOption"
           >
             <span>+</span>
             Add Option
           </button>
         </div>
 
-        <!-- Action -->
+        <!-- Create Button -->
         <button
-          @click="createPoll"
-          :disabled="loading"
+          type="button"
           class="btn btn-primary create-btn"
+          :disabled="loading"
+          @click="createPoll"
         >
           <span v-if="loading" class="btn-loader"></span>
-
           {{ loading ? 'Creating Poll...' : 'Create Poll' }}
         </button>
 
         <!-- Error -->
         <div v-if="error" class="error-message">
           <span class="error-icon">!</span>
-
           <span>{{ error }}</span>
         </div>
 
         <!-- Success -->
-        <div
-          v-if="created"
-          class="success-card fade-in"
-        >
+        <div v-if="created" class="success-card fade-in">
           <div class="success-header">
-            <div class="success-icon">
-              ✓
-            </div>
-
+            <div class="success-icon">✓</div>
             <div>
               <h3>Poll Created Successfully!</h3>
-
-              <p>
-                Your poll is ready to be shared.
-              </p>
+              <p>Your poll is ready to be shared.</p>
             </div>
           </div>
 
           <div class="poll-info">
-
             <div class="poll-info-row">
-              <span class="info-label">
-                Poll Code
-              </span>
-
-              <strong class="poll-code-value">
-                {{ created.code }}
-              </strong>
+              <span class="info-label">Poll Code</span>
+              <strong class="poll-code-value">{{ created.code }}</strong>
             </div>
 
             <div class="poll-link-box">
-
-              <span class="info-label">
-                Voting Link
-              </span>
-
+              <span class="info-label">Voting Link</span>
               <router-link
                 :to="'/poll/' + created.code"
                 class="poll-link"
               >
                 {{ origin }}/poll/{{ created.code }}
               </router-link>
-
             </div>
-
           </div>
 
           <router-link
@@ -145,7 +125,6 @@
             <span>→</span>
           </router-link>
         </div>
-
       </div>
     </div>
   </div>
@@ -153,7 +132,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { pollApi } from '../api/pollApi' 
+import { pollApi } from '../api/pollApi'
 
 const question = ref('')
 const options = ref(['', ''])
@@ -162,27 +141,54 @@ const error = ref('')
 const created = ref(null)
 const origin = window.location.origin
 
+function addOption() {
+  if (options.value.length < 6) {
+    options.value.push('')
+  }
+}
+
+function removeOption(index) {
+  if (options.value.length > 2) {
+    options.value.splice(index, 1)
+  }
+}
+
 async function createPoll() {
   error.value = ''
   created.value = null
+
+  const cleanQuestion = question.value.trim()
+  const cleanOptions = options.value
+    .map(o => o.trim())
+    .filter(Boolean)
+
+  // Validation
+  if (!cleanQuestion) {
+    error.value = 'Please enter a question'
+    return
+  }
+
+  if (cleanOptions.length < 2) {
+    error.value = 'Please enter at least 2 options'
+    return
+  }
+
+  if (cleanOptions.length > 6) {
+    error.value = 'Maximum 6 options allowed'
+    return
+  }
+
+  // Chặn option trùng (không phân biệt hoa thường)
+  const uniqueSet = new Set(cleanOptions.map(o => o.toLowerCase()))
+  if (uniqueSet.size !== cleanOptions.length) {
+    error.value = 'Options must not be duplicated'
+    return
+  }
+
   loading.value = true
 
   try {
-    const cleanOptions = options.value.map(o => o.trim()).filter(Boolean)
-
-    if (!question.value.trim()) {
-      throw new Error('Please enter a question')
-    }
-    if (cleanOptions.length < 2) {
-      throw new Error('Please enter at least 2 options')
-    }
-    const uniqueOptions = new Set(cleanOptions.map(o => o.toLowerCase()))
-    
-    if (uniqueOptions.size !== cleanOptions.length) {
-      throw new Error('Options must not be duplicated')
-    }
-    // Call API via ApiGateway (Port 5005)
-    created.value = await pollApi.create(question.value.trim(), cleanOptions)
+    created.value = await pollApi.create(cleanQuestion, cleanOptions)
   } catch (e) {
     error.value = e.message || 'Error creating poll'
   } finally {
