@@ -1,23 +1,12 @@
 <template>
-  <div style="margin-top:1rem">
-    <div
-      v-for="opt in options"
-      :key="opt.index"
-      style="margin-bottom:10px"
-    >
-      <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:4px">
-        <span>{{ opt.text }}</span>
-        <span>{{ counts?.[opt.index] ?? 0 }} vote ({{ percent(opt.index) }}%)</span>
+  <div class="chart">
+    <div v-for="opt in options" :key="opt.index" class="chart-row">
+      <div class="chart-row-top">
+        <span class="chart-row-label">{{ opt.text }}</span>
+        <span class="chart-row-value">{{ counts?.[opt.index] ?? 0 }} vote · {{ percent(opt.index) }}%</span>
       </div>
-      <div style="background:#334155; border-radius:6px; overflow:hidden; height:12px">
-        <div
-          :style="{
-            width: percent(opt.index) + '%',
-            background: '#3b82f6',
-            height: '100%',
-            transition: 'width 0.3s ease'
-          }"
-        />
+      <div class="chart-track">
+        <div class="chart-fill" :style="{ width: percent(opt.index) + '%' }" />
       </div>
     </div>
   </div>

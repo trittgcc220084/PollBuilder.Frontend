@@ -1,80 +1,77 @@
+<!-- [FRONTEND] File: src/views/Login.vue -->
 <template>
-  <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
-    <h2>Lịch sử Poll của tôi</h2>
+  <div class="auth-page">
+    <div class="card auth-card fade-in">
+      <div class="eyebrow">Poll Builder</div>
+      <h2 class="auth-title">Đăng nhập</h2>
 
-    <div v-if="isLoading" style="text-align: center; padding: 20px;">
-      ⏳ Đang tải dữ liệu...
-    </div>
+      <form @submit.prevent="handleLogin" class="auth-form">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Email</label>
+          <input v-model="email" type="email" required class="input" placeholder="ban@vidu.com" />
+        </div>
 
-    <div v-else-if="errorMessage" style="color: red; padding: 20px; background: #ffe0e0; border-radius: 8px;">
-      ❌ {{ errorMessage }}
-    </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Mật khẩu</label>
+          <input v-model="password" type="password" required class="input" placeholder="••••••••" />
+        </div>
 
-    <div v-else-if="polls.length > 0">
-      <PollCard 
-        v-for="poll in polls" 
-        :key="poll.id || poll._id || poll.code" 
-        :poll="poll" 
-      />
-    </div>
+        <button type="submit" :disabled="loading" class="btn btn-primary btn-block">
+          <span v-if="loading" class="btn-loader"></span>
+          {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
+        </button>
+      </form>
 
-    <div v-else style="padding: 20px; text-align: center; color: #666;">
-      📝 Bạn chưa tạo Poll nào cả.
+      <div v-if="error" class="error-message">
+        <span class="error-icon">!</span>
+        <span>{{ error }}</span>
+      </div>
+
+      <p class="auth-footer">
+        Chưa có tài khoản? <router-link to="/register" class="link">Đăng ký ngay</router-link>
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { pollApi } from '../api/pollApi';
-import PollCard from '../components/PollCard.vue';
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+import { useAuth } from '../composables/useAuth'
 
-const polls = ref([]);
-const isLoading = ref(true);
-const errorMessage = ref('');
-const router = useRouter();
+const email = ref('')
+const password = ref('')
+const loading = ref(false)
+const error = ref('')
+const router = useRouter()
+const route = useRoute()
+const { login } = useAuth()
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
 
-onMounted(async () => {
-  // 1. Lấy token từ localStorage
-  const jwtToken = localStorage.getItem('token');
-
-  console.log('🔍 Kiểm tra token:', jwtToken ? 'Token tồn tại' : '❌ Không có token');
-
-  if (!jwtToken) {
-    errorMessage.value = 'Bạn chưa đăng nhập. Vui lòng đăng nhập để xem danh sách.';
-    isLoading.value = false;
-    // Redirect to login sau 2 giây
-    setTimeout(() => router.push('/login'), 2000);
-    return;
-  }
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
 
   try {
-    // 2. Gọi API qua pollApi.js (đã tự động xử lý token)
-    console.log('📡 Gọi API: getMyPolls()');
-    const data = await pollApi.getMyPolls();
-    
-    console.log('✅ Dữ liệu trả về:', data);
-    polls.value = Array.isArray(data) ? data : (data.data || []);
-    
-    if (polls.value.length === 0) {
-      console.log('ℹ️ Không có poll nào');
-    }
-  } catch (error) {
-    console.error('❌ Lỗi lấy MyPolls:', error);
-    
-    // Kiểm tra nếu là lỗi 401 - Token hết hạn
-    if (error.message.includes('401')) {
-      localStorage.removeItem('token');
-      errorMessage.value = '🔐 Token hết hạn. Vui lòng đăng nhập lại.';
-      setTimeout(() => router.push('/login'), 2000);
-    } else {
-      errorMessage.value = `⚠️ Không thể tải danh sách Poll: ${error.message}. Vui lòng đăng nhập lại.`;
-    }
-  } finally {
-    isLoading.value = false;
-  }
-});
-</script>
+    const res = await axios.post(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/login`, {
+      email: email.value,
+      password: password.value
+    })
 
-Please confirm you want Copilot to make this change in the trittgcc220084/pollbuilder-frontend repository on the default branch.
+    const token = res.data?.token || res.data?.Token
+
+    if (token) {
+      login(token)
+      router.push(route.query.redirect || '/')
+    } else {
+      error.value = 'Server không trả về Token!'
+    }
+  } catch (err) {
+    console.error('Lỗi Login:', err)
+    error.value = err.response?.data?.message || err.message || 'Không thể kết nối đến Server'
+  } finally {
+    loading.value = false
+  }
+}
+</script>

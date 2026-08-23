@@ -1,32 +1,36 @@
 <!-- [FRONTEND] File: src/views/Login.vue -->
 <template>
-  <div style="max-width: 400px; margin: 50px auto; padding: 24px; background: #1e293b; border-radius: 12px; color: white; font-family: sans-serif;">
-    <h2 style="text-align: center; margin-bottom: 24px;">Đăng nhập</h2>
-    
-    <form @submit.prevent="handleLogin" style="display: flex; flex-direction: column; gap: 16px;">
-      <div>
-        <label style="display: block; font-size: 14px; margin-bottom: 6px;">Email</label>
-        <input v-model="email" type="email" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box;" />
+  <div class="auth-page">
+    <div class="card auth-card fade-in">
+      <div class="eyebrow">Poll Builder</div>
+      <h2 class="auth-title">Đăng nhập</h2>
+
+      <form @submit.prevent="handleLogin" class="auth-form">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Email</label>
+          <input v-model="email" type="email" required class="input" placeholder="ban@vidu.com" />
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Mật khẩu</label>
+          <input v-model="password" type="password" required class="input" placeholder="••••••••" />
+        </div>
+
+        <button type="submit" :disabled="loading" class="btn btn-primary btn-block">
+          <span v-if="loading" class="btn-loader"></span>
+          {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
+        </button>
+      </form>
+
+      <div v-if="error" class="error-message">
+        <span class="error-icon">!</span>
+        <span>{{ error }}</span>
       </div>
 
-      <div>
-        <label style="display: block; font-size: 14px; margin-bottom: 6px;">Mật khẩu</label>
-        <input v-model="password" type="password" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box;" />
-      </div>
-
-      <button type="submit" :disabled="loading" style="padding: 12px; border-radius: 6px; border: none; background: #3b82f6; color: white; font-weight: bold; cursor: pointer;">
-        {{ loading ? 'Đang xử lý...' : 'Đăng nhập' }}
-      </button>
-    </form>
-
-    <!-- Hiển thị lỗi rõ ràng ngay tại đây -->
-    <p v-if="error" style="color: #f87171; margin-top: 16px; font-size: 14px; text-align: center; background: #f8717122; border: 1px solid #ef4444; padding: 10px; border-radius: 6px;">
-      {{ error }}
-    </p>
-
-    <p style="text-align: center; margin-top: 16px; font-size: 14px; color: #94a3b8;">
-      Chưa có tài khoản? <router-link to="/register" style="color: #38bdf8;">Đăng ký ngay</router-link>
-    </p>
+      <p class="auth-footer">
+        Chưa có tài khoản? <router-link to="/register" class="link">Đăng ký ngay</router-link>
+      </p>
+    </div>
   </div>
 </template>
 

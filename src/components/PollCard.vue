@@ -1,18 +1,22 @@
 <template>
-  <div class="poll-card" style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
-    <h3>{{ poll.question }}</h3>
-    <p>Trạng thái: <strong>{{ poll.status === 'closed' ? '🔴 Đã đóng' : '🟢 Đang mở' }}</strong></p>
-    
-    <div style="display: flex; gap: 10px; margin-top: 15px;">
-      <button @click="goToRealtime" style="background: #3b82f6; color: white; padding: 5px 10px; border: none; border-radius: 4px;">
+  <div class="card poll-card">
+    <div class="poll-card-header">
+      <h3 class="poll-card-question">{{ poll.question }}</h3>
+      <span :class="['badge', poll.status === 'closed' ? 'badge-danger' : 'badge-success']">
+        {{ poll.status === 'closed' ? 'Đã đóng' : 'Đang mở' }}
+      </span>
+    </div>
+
+    <div class="poll-card-actions">
+      <button @click="goToRealtime" class="btn btn-secondary btn-sm">
         📊 Xem Realtime
       </button>
-      
-      <button @click="copyLink" style="background: #10b981; color: white; padding: 5px 10px; border: none; border-radius: 4px;">
+
+      <button @click="copyLink" class="btn btn-secondary btn-sm">
         🔗 Copy Link
       </button>
 
-      <button v-if="poll.status !== 'closed'" @click="closePoll" style="background: #ef4444; color: white; padding: 5px 10px; border: none; border-radius: 4px;">
+      <button v-if="poll.status !== 'closed'" @click="closePoll" class="btn btn-danger btn-sm">
         🔒 Đóng Poll
       </button>
     </div>
@@ -43,7 +47,7 @@ const copyLink = () => {
 // 3. Đóng Poll
 const closePoll = async () => {
   if (!confirm('Bạn có chắc chắn muốn đóng Poll này? Người khác sẽ không thể vote được nữa.')) return;
-  
+
   try {
     await axios.patch(`https://pollbuildergateway.onrender.com/api/polls/${props.poll.code}/close`, {}, {
       headers: { Authorization: `Bearer ${token.value}` }

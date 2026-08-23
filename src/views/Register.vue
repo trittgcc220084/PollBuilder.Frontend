@@ -1,29 +1,36 @@
 <!-- [FRONTEND] File: src/views/Register.vue -->
 <template>
-  <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #1e293b; color: white;">
-    <h2>Đăng ký tài khoản</h2>
-    <form @submit.prevent="handleRegister">
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px;">Email</label>
-        <input v-model="email" type="email" required style="width: 100%; padding: 8px; border: 1px solid #334155; border-radius: 4px; background: #0f172a; color: white; box-sizing: border-box;" />
-      </div>
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px;">Mật khẩu</label>
-        <input v-model="password" type="password" required style="width: 100%; padding: 8px; border: 1px solid #334155; border-radius: 4px; background: #0f172a; color: white; box-sizing: border-box;" />
-      </div>
-      <button type="submit" :disabled="isLoading" style="width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-        {{ isLoading ? 'Đang xử lý...' : 'Đăng ký' }}
-      </button>
-    </form>
+  <div class="auth-page">
+    <div class="card auth-card fade-in">
+      <div class="eyebrow">Poll Builder</div>
+      <h2 class="auth-title">Đăng ký tài khoản</h2>
 
-    <!-- Hiển thị lỗi ngay giao diện, không xài popup alert() -->
-    <p v-if="errorMessage" style="color: #f87171; margin-top: 15px; text-align: center; background: #f8717122; border: 1px solid #ef4444; padding: 8px; border-radius: 4px; font-size: 14px;">
-      {{ errorMessage }}
-    </p>
+      <form @submit.prevent="handleRegister" class="auth-form">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Email</label>
+          <input v-model="email" type="email" required class="input" placeholder="ban@vidu.com" />
+        </div>
 
-    <p style="margin-top: 15px; text-align: center; font-size: 14px; color: #94a3b8;">
-      Đã có tài khoản? <router-link to="/login" style="color: #38bdf8;">Đăng nhập</router-link>
-    </p>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Mật khẩu</label>
+          <input v-model="password" type="password" required class="input" placeholder="••••••••" />
+        </div>
+
+        <button type="submit" :disabled="isLoading" class="btn btn-primary btn-block">
+          <span v-if="isLoading" class="btn-loader"></span>
+          {{ isLoading ? 'Đang xử lý...' : 'Đăng ký' }}
+        </button>
+      </form>
+
+      <div v-if="errorMessage" class="error-message">
+        <span class="error-icon">!</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <p class="auth-footer">
+        Đã có tài khoản? <router-link to="/login" class="link">Đăng nhập</router-link>
+      </p>
+    </div>
   </div>
 </template>
 
@@ -45,7 +52,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergate
 const handleRegister = async () => {
   isLoading.value = true;
   errorMessage.value = '';
-  
+
   try {
     const response = await axios.post(`${apiBaseUrl.replace(/\/$/, '')}/api/auth/register`, {
       email: email.value.trim(),
@@ -56,7 +63,7 @@ const handleRegister = async () => {
     if (token) {
       login(token);
     }
-    
+
     router.push(route.query.redirect || '/');
   } catch (error) {
     // Bắt đúng chuỗi tin nhắn lỗi từ Backend trả về
