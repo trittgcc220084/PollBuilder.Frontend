@@ -1,0 +1,372 @@
+/* =========================
+   GLOBAL RESET
+========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(99, 102, 241, 0.15),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(139, 92, 246, 0.12),
+      transparent 35%
+    ),
+    #0f172a;
+
+  color: #f8fafc;
+}
+
+
+/* =========================
+   APP
+========================= */
+
+#app {
+  min-height: 100vh;
+}
+
+
+/* =========================
+   CONTAINER
+========================= */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+
+/* =========================
+   PAGE
+========================= */
+
+.page {
+  min-height: 100vh;
+
+  padding: 40px 20px;
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+  background:
+    rgba(15, 23, 42, 0.7);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 20px;
+
+  backdrop-filter:
+    blur(20px);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+
+.btn-primary {
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #8b5cf6
+    );
+
+  box-shadow:
+    0 10px 25px
+    rgba(99, 102, 241, 0.3);
+}
+
+
+.btn-primary:hover {
+  box-shadow:
+    0 15px 35px
+    rgba(99, 102, 241, 0.45);
+}
+
+
+.btn-danger {
+  color: #f87171;
+
+  background:
+    rgba(239, 68, 68, 0.1);
+
+  border:
+    1px solid rgba(239, 68, 68, 0.25);
+}
+
+
+.btn-danger:hover {
+  background:
+    rgba(239, 68, 68, 0.2);
+}
+
+
+.btn-secondary {
+  color: #cbd5e1;
+
+  background:
+    rgba(255, 255, 255, 0.05);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.1);
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+.input,
+textarea,
+select {
+  width: 100%;
+
+  padding: 13px 15px;
+
+  color: white;
+
+  background:
+    rgba(255, 255, 255, 0.05);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.1);
+
+  border-radius: 10px;
+
+  outline: none;
+
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
+}
+
+
+.input:focus,
+textarea:focus,
+select:focus {
+  border-color: #818cf8;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(99, 102, 241, 0.15);
+}
+
+
+.input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+
+/* =========================
+   HEADINGS
+========================= */
+
+.page-title {
+  font-size: clamp(32px, 5vw, 52px);
+
+  font-weight: 800;
+
+  letter-spacing: -1.5px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #c7d2fe
+    );
+
+  -webkit-background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+}
+
+
+.page-subtitle {
+  margin-top: 10px;
+
+  color: #94a3b8;
+
+  font-size: 16px;
+}
+
+
+/* =========================
+   BADGES
+========================= */
+
+.badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+.badge-success {
+  color: #4ade80;
+
+  background:
+    rgba(34, 197, 94, 0.1);
+
+  border:
+    1px solid rgba(34, 197, 94, 0.2);
+}
+
+
+.badge-danger {
+  color: #f87171;
+
+  background:
+    rgba(239, 68, 68, 0.1);
+
+  border:
+    1px solid rgba(239, 68, 68, 0.2);
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+
+.form-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #cbd5e1;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+/* =========================
+   ANIMATION
+========================= */
+
+.fade-in {
+  animation:
+    fadeIn 0.4s ease;
+}
+
+
+@keyframes fadeIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .page {
+    padding: 25px 15px;
+  }
+
+  .container {
+    padding: 0 15px;
+  }
+
+}

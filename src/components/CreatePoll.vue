@@ -1,48 +1,159 @@
 <template>
-  <div style="max-width: 600px; margin: 40px auto; padding: 24px; background: #1e293b; border-radius: 12px; color: #e2e8f0; font-family: sans-serif;">
-    <h1 style="margin-bottom: 20px;">Poll Builder</h1>
+  <div class="page create-poll-page">
+    <div class="container">
+      <div class="create-poll-card card fade-in">
 
-    <label style="display:block; margin-bottom: 6px;">Cau hoi</label>
-    <input v-model="question" placeholder="Ban thich mau nao?" 
-      style="width:100%; padding:10px; margin-bottom:16px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;" />
+        <!-- Header -->
+        <div class="create-poll-header">
+          <div class="eyebrow">CREATE A NEW POLL</div>
 
-    <label style="display:block; margin-bottom: 6px;">Lua chon (2-6)</label>
-    <div v-for="(opt, i) in options" :key="i" style="display:flex; gap:8px; margin-bottom:8px;">
-      <input v-model="options[i]" :placeholder="'Lua chon ' + (i+1)"
-        style="flex:1; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:white;" />
-      <button v-if="options.length > 2" @click="options.splice(i,1)" 
-        style="background:#ef4444; color:white; border:none; border-radius:8px; padding:0 12px; cursor:pointer;">X</button>
-    </div>
+          <h1 class="page-title">Poll Builder</h1>
 
-    <button v-if="options.length < 6" @click="options.push('')" 
-      style="background:#64748b; color:white; border:none; padding:8px 16px; border-radius:8px; margin-bottom:16px; cursor:pointer;">
-      + Them lua chon
-    </button>
+          <p class="page-subtitle">
+            Create a poll and share it with others in seconds.
+          </p>
+        </div>
 
-    <br/>
-    <button @click="createPoll" :disabled="loading"
-      style="background:#3b82f6; color:white; border:none; padding:12px 24px; border-radius:8px; font-size:16px; cursor:pointer;">
-      {{ loading ? 'Dang tao...' : 'Tao poll' }}
-    </button>
+        <!-- Question -->
+        <div class="form-group">
+          <label class="form-label">
+            Question
+          </label>
 
-    <p v-if="error" style="color:#f87171; margin-top:12px;">{{ error }}</p>
+          <input
+            v-model="question"
+            placeholder="What is your favorite color?"
+            class="input"
+          />
+        </div>
 
-    <div v-if="created" style="margin-top:24px; padding:16px; background:#0f172a; border-radius:8px;">
-      <p style="color:#4ade80;">Tao thanh cong!</p>
-      <p>Ma poll: <strong>{{ created.code }}</strong></p>
-      <p>
-        Link vote:
-        <router-link :to="'/poll/' + created.code" style="color:#38bdf8;">
-          {{ origin }}/poll/{{ created.code }}
-        </router-link>
-      </p>
+        <!-- Options -->
+        <div class="form-group">
+          <label class="form-label">
+            Options
+            <span class="form-hint">(2–6 options)</span>
+          </label>
+
+          <div class="options-list">
+            <div
+              v-for="(opt, i) in options"
+              :key="i"
+              class="option-row"
+            >
+              <div class="option-number">
+                {{ i + 1 }}
+              </div>
+
+              <input
+                v-model="options[i]"
+                :placeholder="'Option ' + (i + 1)"
+                class="input option-input"
+              />
+
+              <button
+                v-if="options.length > 2"
+                @click="options.splice(i,1)"
+                class="remove-option-btn"
+                title="Remove option"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+
+          <button
+            v-if="options.length < 6"
+            @click="options.push('')"
+            class="add-option-btn"
+          >
+            <span>+</span>
+            Add Option
+          </button>
+        </div>
+
+        <!-- Action -->
+        <button
+          @click="createPoll"
+          :disabled="loading"
+          class="btn btn-primary create-btn"
+        >
+          <span v-if="loading" class="btn-loader"></span>
+
+          {{ loading ? 'Creating Poll...' : 'Create Poll' }}
+        </button>
+
+        <!-- Error -->
+        <div v-if="error" class="error-message">
+          <span class="error-icon">!</span>
+
+          <span>{{ error }}</span>
+        </div>
+
+        <!-- Success -->
+        <div
+          v-if="created"
+          class="success-card fade-in"
+        >
+          <div class="success-header">
+            <div class="success-icon">
+              ✓
+            </div>
+
+            <div>
+              <h3>Poll Created Successfully!</h3>
+
+              <p>
+                Your poll is ready to be shared.
+              </p>
+            </div>
+          </div>
+
+          <div class="poll-info">
+
+            <div class="poll-info-row">
+              <span class="info-label">
+                Poll Code
+              </span>
+
+              <strong class="poll-code-value">
+                {{ created.code }}
+              </strong>
+            </div>
+
+            <div class="poll-link-box">
+
+              <span class="info-label">
+                Voting Link
+              </span>
+
+              <router-link
+                :to="'/poll/' + created.code"
+                class="poll-link"
+              >
+                {{ origin }}/poll/{{ created.code }}
+              </router-link>
+
+            </div>
+
+          </div>
+
+          <router-link
+            :to="'/poll/' + created.code"
+            class="btn btn-primary vote-now-btn"
+          >
+            Vote Now
+            <span>→</span>
+          </router-link>
+        </div>
+
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { pollApi } from '../api/pollApi' // Thay đổi đường dẫn này nếu file pollApi.js nằm ở thư mục khác
+import { pollApi } from '../api/pollApi' 
 
 const question = ref('')
 const options = ref(['', ''])
@@ -60,16 +171,16 @@ async function createPoll() {
     const cleanOptions = options.value.map(o => o.trim()).filter(Boolean)
 
     if (!question.value.trim()) {
-      throw new Error('Vui lòng nhập câu hỏi')
+      throw new Error('Please enter a question')
     }
     if (cleanOptions.length < 2) {
-      throw new Error('Vui lòng nhập ít nhất 2 lựa chọn')
+      throw new Error('Please enter at least 2 options')
     }
 
-    // Gọi API qua ApiGateway (Port 5005)
+    // Call API via ApiGateway (Port 5005)
     created.value = await pollApi.create(question.value.trim(), cleanOptions)
   } catch (e) {
-    error.value = e.message || 'Loi tao poll'
+    error.value = e.message || 'Error creating poll'
   } finally {
     loading.value = false
   }
