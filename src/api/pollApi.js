@@ -1,4 +1,3 @@
-// [FRONTEND] File: src/api/pollApi.js
 
 const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
 const API_BASE = `${rawBaseUrl.replace(/\/$/, '')}/api`
@@ -11,7 +10,6 @@ async function request(url, options = {}) {
     ...(options.headers || {}),
   }
 
-  // Tự động làm sạch và đính kèm Token
   if (token) {
     token = token.replace(/^"(.*)"$/, '$1').trim()
     
@@ -21,13 +19,12 @@ async function request(url, options = {}) {
 
     headers['Authorization'] = `Bearer ${token}`
   } else {
-    console.warn('⚠️ [CHECK TOKEN]: Không tìm thấy Token trong LocalStorage.')
+    console.warn('⚠️ [CHECK TOKEN]: Token not found in LocalStorage..')
   }
 
   const res = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers,
-    // Đã bỏ 'credentials: include' để tránh bị trình duyệt chặn CORS Preflight
   })
 
   if (!res.ok) {
@@ -38,7 +35,7 @@ async function request(url, options = {}) {
     } catch {
       err = { message: errorBody }
     }
-    throw new Error(err.message || err.error || `Lỗi HTTP ${res.status}`)
+    throw new Error(err.message || err.error || `Error HTTP ${res.status}`)
   }
 
   const responseBody = await res.text()
@@ -50,8 +47,8 @@ export const pollApi = {
     return request('/polls', {
       method: 'POST',
       body: JSON.stringify({ 
-        title: question,    // C# Backend thường đặt tên thuộc tính DTO là Title
-        question: question, // Gửi kèm cả 2 trường để khớp 100% với DTO Backend
+        title: question,    
+        question: question, 
         options 
       }),
     })
