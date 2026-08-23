@@ -176,7 +176,11 @@ async function createPoll() {
     if (cleanOptions.length < 2) {
       throw new Error('Please enter at least 2 options')
     }
-
+    const uniqueOptions = new Set(cleanOptions.map(o => o.toLowerCase()))
+    
+    if (uniqueOptions.size !== cleanOptions.length) {
+      throw new Error('Options must not be duplicated')
+    }
     // Call API via ApiGateway (Port 5005)
     created.value = await pollApi.create(question.value.trim(), cleanOptions)
   } catch (e) {
