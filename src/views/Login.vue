@@ -32,7 +32,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
 
@@ -41,8 +41,9 @@ const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const router = useRouter()
+const route = useRoute()
 const { login } = useAuth()
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuilder-gateway-r33h.onrender.com'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
 
 const handleLogin = async () => {
   loading.value = true
@@ -58,7 +59,7 @@ const handleLogin = async () => {
 
     if (token) {
       login(token)
-      router.push('/')
+      router.push(route.query.redirect || '/')
     } else {
       error.value = 'Server không trả về Token!'
     }

@@ -41,7 +41,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const { token } = useAuth()
   if (to.meta.requiresAuth && !token.value) {
-    next('/login')
+    next({ path: '/login', query: { redirect: to.fullPath } })
   } else {
     next()
   }

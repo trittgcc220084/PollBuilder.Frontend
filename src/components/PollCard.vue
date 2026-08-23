@@ -30,12 +30,12 @@ const { token } = useAuth();
 
 // 1. Xem Realtime
 const goToRealtime = () => {
-  router.push(`/${props.poll.code}/results`);
+  router.push(`/poll/${props.poll.code}/results`);
 };
 
 // 2. Copy Link Vote
 const copyLink = () => {
-  const url = `${window.location.origin}/${props.poll.code}`;
+  const url = `${window.location.origin}/poll/${props.poll.code}`;
   navigator.clipboard.writeText(url);
   alert('Đã copy link! Hãy gửi cho bạn bè để vote.');
 };
@@ -46,7 +46,7 @@ const closePoll = async () => {
   
   try {
     // Lưu ý: Thay đổi URL Gateway của bạn nếu cần
-    await axios.patch(`https://pollbuilder-gateway.onrender.com/api/polls/${props.poll.code}/close`, {}, {
+    await axios.patch(`https://pollbuildergateway.onrender.com/api/polls/${props.poll.code}/close`, {}, {
       headers: { Authorization: `Bearer ${token.value}` }
     });
     alert('Đã đóng Poll thành công!');
