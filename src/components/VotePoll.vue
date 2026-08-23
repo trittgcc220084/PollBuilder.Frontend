@@ -1,7 +1,7 @@
 <template>
   <div class="page vote-page">
     <div class="container" style="max-width: 560px; padding: 0 20px;">
-      <div v-if="loading" class="state-box">Đang tải...</div>
+      <div v-if="loading" class="state-box">Loading...</div>
 
       <div v-else-if="error" class="alert alert-error">
         <span class="alert-icon">!</span>
@@ -15,7 +15,7 @@
         <!-- Chuyển status về chữ thường để so sánh chính xác -->
         <div v-if="poll.status?.toLowerCase() === 'closed'" class="alert alert-error poll-closed-banner">
           <span class="alert-icon">!</span>
-          <span>Poll đã đóng, không thể vote.</span>
+          <span>The poll is closed, voting is not possible.</span>
         </div>
 
         <div v-else>
@@ -38,7 +38,7 @@
 
         <div v-if="voted" class="alert alert-success" style="margin-top:16px;">
           <span class="alert-icon">✓</span>
-          <span>Bạn đã vote thành công!</span>
+          <span>You have successfully voted!</span>
         </div>
         <div v-if="voteError" class="alert alert-error" style="margin-top:16px;">
           <span class="alert-icon">!</span>
@@ -46,7 +46,7 @@
         </div>
 
         <router-link :to="`/poll/${code}/results`" class="realtime-link">
-          Xem kết quả realtime →
+          View real-time results →
         </router-link>
       </div>
     </div>
@@ -74,7 +74,7 @@ onMounted(async () => {
   try {
     poll.value = await pollApi.get(code)
   } catch (e) {
-    error.value = e.message || 'Không thể tải thông tin bình chọn'
+    error.value = e.message || 'Unable to load voting information.'
   } finally {
     loading.value = false
   }
@@ -89,7 +89,7 @@ async function submitVote() {
     await pollApi.vote(code, selected.value)
     voted.value = true
   } catch (e) {
-    voteError.value = e.message || 'Lỗi khi gửi bình chọn'
+    voteError.value = e.message || 'Error submitting vote'
   } finally {
     voting.value = false
   }
