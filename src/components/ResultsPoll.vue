@@ -35,12 +35,23 @@ const results = ref(null)
 const loading = ref(true)
 const error = ref('')
 let connection = null
+let pollingTimer = null
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
 // Kết nối SignalR đi thẳng tới RealtimeService, KHÔNG qua Gateway
 // (Ocelot chưa có route cho /hubs/polls, và proxy WebSocket qua nhiều lớp dễ bị ngắt trên free tier)
 const realtimeBaseUrl = import.meta.env.VITE_REALTIME_URL || 'https://pollbuilder-realtime-s3ye.onrender.com'
 const hubUrl = `${realtimeBaseUrl.replace(/\/$/, '')}/hubs/polls`
+
+async function resyncResults() {
+  try {
+    const fresh = await pollApi.results(code)
+    results.value = fresh
+  } catch (e) {
+    // Nếu poll đã bị xoá/đóng và không còn quyền xem thì bỏ qua, không ghi đè lỗi hiện tại
+    console.error('Lỗi resync:', e.message)
+  }
+}
 
 onMounted(async () => {
   try {
@@ -52,6 +63,14 @@ onMounted(async () => {
   }
 
   loading.value = false
+
+  // LỚP DỰ PHÒNG: tự động đồng bộ lại mỗi 4 giây bằng REST API
+  // Vì WebSocket trên Render free tier hay bị ngắt (~10-15s/lần), không thể chỉ tin tưởng SignalR
+  pollingTimer = setInterval(() => {
+    if (results.value?.status !== 'closed') {
+      resyncResults()
+    }
+  }, 4000)
 
   // Khởi tạo kết nối SignalR sử dụng đường dẫn Hub động
   connection = new signalR.HubConnectionBuilder()
@@ -72,12 +91,12 @@ onMounted(async () => {
     if (results.value) results.value.status = 'closed'
   })
 
-  // QUAN TRỌNG: SignalR tự kết nối lại (reconnect) nhưng KHÔNG tự join lại group
-  // Trên Render free tier, WebSocket bị ngắt định kỳ -> phải tự JoinPoll lại mỗi khi reconnect
+  // SignalR tự kết nối lại (reconnect) nhưng KHÔNG tự join lại group
+  // -> phải tự JoinPoll lại + đồng bộ lại dữ liệu (bù phần có thể đã bị lỡ lúc mất kết nối)
   connection.onreconnected(async () => {
     try {
       await connection.invoke('JoinPoll', code)
-      console.log('✅ Đã join lại group sau khi reconnect')
+      await resyncResults()
     } catch (e) {
       console.error('Lỗi khi join lại group:', e)
     }
@@ -93,6 +112,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (connection) connection.stop()
+  if (pollingTimer) clearInterval(pollingTimer)
 })
 
 async function closePoll() {
