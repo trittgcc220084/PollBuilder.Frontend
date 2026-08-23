@@ -21,7 +21,6 @@ const routes = [
     component: MyPolls,
     meta: { requiresAuth: true }
   },
-  // Quan trọng: /poll/:code (khớp link tạo poll)
   {
     path: '/poll/:code',
     component: VotePoll,
