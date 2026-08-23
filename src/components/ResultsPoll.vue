@@ -37,7 +37,10 @@ const error = ref('')
 let connection = null
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://pollbuildergateway.onrender.com'
-const hubUrl = `${baseUrl.replace(/\/$/, '')}/hubs/polls`
+// Kết nối SignalR đi thẳng tới RealtimeService, KHÔNG qua Gateway
+// (Ocelot chưa có route cho /hubs/polls, và proxy WebSocket qua nhiều lớp dễ bị ngắt trên free tier)
+const realtimeBaseUrl = import.meta.env.VITE_REALTIME_URL || 'https://pollbuilder-realtime-s3ye.onrender.com'
+const hubUrl = `${realtimeBaseUrl.replace(/\/$/, '')}/hubs/polls`
 
 onMounted(async () => {
   try {
